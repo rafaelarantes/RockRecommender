@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="RockRecommender.Api/RockRecommender.Api.csproj" />
+  <Project Path="RockRecommender.Application/RockRecommender.Application.csproj" />
+  <Project Path="RockRecommender.Domain/RockRecommender.Domain.csproj" />
+  <Project Path="RockRecommender.Infrastructure/RockRecommender.Infrastructure.csproj" />
+  <Project Path="RockRecommender.Tests/RockRecommender.Tests.csproj" />
+  <Project Path="RockRecommender.Training/RockRecommender.Training.csproj" />
+</Solution>

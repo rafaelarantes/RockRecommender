@@ -1,0 +1,230 @@
+{
+  "genres": [
+    "Classic Rock",
+    "Hard Rock",
+    "Heavy Metal",
+    "Thrash Metal",
+    "Grunge",
+    "Punk Rock",
+    "Alternative Rock",
+    "Progressive Rock",
+    "Black Metal"
+  ],
+  "bands": [
+    {
+      "name": "Led Zeppelin",
+      "genre": "Classic Rock",
+      "songs": ["Stairway to Heaven", "Kashmir", "Whole Lotta Love", "Black Dog", "Immigrant Song", "Rock and Roll", "Dazed and Confused", "Ramble On"]
+    },
+    {
+      "name": "The Rolling Stones",
+      "genre": "Classic Rock",
+      "songs": ["Paint It Black", "Sympathy for the Devil", "Gimme Shelter", "Brown Sugar", "Start Me Up", "Angie", "Jumpin' Jack Flash", "Wild Horses"]
+    },
+    {
+      "name": "Queen",
+      "genre": "Classic Rock",
+      "songs": ["Bohemian Rhapsody", "We Will Rock You", "Don't Stop Me Now", "Somebody to Love", "Killer Queen", "Under Pressure", "We Are the Champions", "Fat Bottomed Girls"]
+    },
+    {
+      "name": "Aerosmith",
+      "genre": "Classic Rock",
+      "songs": ["Dream On", "Sweet Emotion", "Walk This Way", "Crazy", "Cryin'", "Love in an Elevator", "Janie's Got a Gun", "Livin' on the Edge"]
+    },
+    {
+      "name": "Fleetwood Mac",
+      "genre": "Classic Rock",
+      "songs": ["Go Your Own Way", "Dreams", "The Chain", "Rhiannon", "Don't Stop", "Landslide", "Everywhere"]
+    },
+    {
+      "name": "Eagles",
+      "genre": "Classic Rock",
+      "songs": ["Hotel California", "Take It Easy", "Life in the Fast Lane", "Desperado", "Take It to the Limit", "Heartache Tonight", "One of These Nights"]
+    },
+    {
+      "name": "AC/DC",
+      "genre": "Hard Rock",
+      "songs": ["Back in Black", "Highway to Hell", "Thunderstruck", "You Shook Me All Night Long", "T.N.T.", "Hells Bells", "Dirty Deeds Done Dirt Cheap", "Whole Lotta Rosie"]
+    },
+    {
+      "name": "Guns N' Roses",
+      "genre": "Hard Rock",
+      "songs": ["Sweet Child O' Mine", "Welcome to the Jungle", "November Rain", "Paradise City", "Patience", "Don't Cry", "Civil War"]
+    },
+    {
+      "name": "Van Halen",
+      "genre": "Hard Rock",
+      "songs": ["Runnin' with the Devil", "Panama", "Jump", "Eruption", "Ain't Talkin' 'bout Love", "Hot for Teacher", "Dance the Night Away"]
+    },
+    {
+      "name": "Kiss",
+      "genre": "Hard Rock",
+      "songs": ["Rock and Roll All Nite", "Detroit Rock City", "Love Gun", "Beth", "Shout It Out Loud", "Strutter", "I Was Made for Lovin' You"]
+    },
+    {
+      "name": "Bon Jovi",
+      "genre": "Hard Rock",
+      "songs": ["Livin' on a Prayer", "Wanted Dead or Alive", "You Give Love a Bad Name", "Bad Medicine", "It's My Life", "Runaway", "Always"]
+    },
+    {
+      "name": "Whitesnake",
+      "genre": "Hard Rock",
+      "songs": ["Here I Go Again", "Is This Love", "Still of the Night", "Fool for Your Loving", "Slide It In", "Give Me All Your Love"]
+    },
+    {
+      "name": "Black Sabbath",
+      "genre": "Heavy Metal",
+      "songs": ["Paranoid", "Iron Man", "War Pigs", "Sweet Leaf", "Children of the Grave", "N.I.B.", "Sabbath Bloody Sabbath"]
+    },
+    {
+      "name": "Iron Maiden",
+      "genre": "Heavy Metal",
+      "songs": ["The Trooper", "Run to the Hills", "Fear of the Dark", "The Number of the Beast", "Hallowed Be Thy Name", "Aces High", "Wasted Years", "2 Minutes to Midnight"]
+    },
+    {
+      "name": "Judas Priest",
+      "genre": "Heavy Metal",
+      "songs": ["Breaking the Law", "Painkiller", "Living After Midnight", "You've Got Another Thing Comin'", "Electric Eye", "Hell Bent for Leather"]
+    },
+    {
+      "name": "Motorhead",
+      "genre": "Heavy Metal",
+      "songs": ["Ace of Spades", "Overkill", "Bomber", "Killed by Death", "Iron Fist", "Orgasmatron"]
+    },
+    {
+      "name": "Dio",
+      "genre": "Heavy Metal",
+      "songs": ["Holy Diver", "Rainbow in the Dark", "The Last in Line", "We Rock", "Don't Talk to Strangers", "King of Rock and Roll"]
+    },
+    {
+      "name": "Metallica",
+      "genre": "Thrash Metal",
+      "songs": ["Master of Puppets", "Enter Sandman", "One", "Fade to Black", "Nothing Else Matters", "For Whom the Bell Tolls", "Battery", "Ride the Lightning"]
+    },
+    {
+      "name": "Megadeth",
+      "genre": "Thrash Metal",
+      "songs": ["Symphony of Destruction", "Peace Sells", "Holy Wars... The Punishment Due", "Hangar 18", "Sweating Bullets", "Trust"]
+    },
+    {
+      "name": "Slayer",
+      "genre": "Thrash Metal",
+      "songs": ["Raining Blood", "Angel of Death", "South of Heaven", "War Ensemble", "Seasons in the Abyss", "Dead Skin Mask"]
+    },
+    {
+      "name": "Anthrax",
+      "genre": "Thrash Metal",
+      "songs": ["Caught in a Mosh", "Madhouse", "Indians", "Antisocial", "Among the Living", "I Am the Law"]
+    },
+    {
+      "name": "Testament",
+      "genre": "Thrash Metal",
+      "songs": ["Practice What You Preach", "Souls of Black", "Over the Wall", "The New Order", "Into the Pit"]
+    },
+    {
+      "name": "Nirvana",
+      "genre": "Grunge",
+      "songs": ["Smells Like Teen Spirit", "Come as You Are", "Heart-Shaped Box", "Lithium", "In Bloom", "About a Girl", "All Apologies"]
+    },
+    {
+      "name": "Pearl Jam",
+      "genre": "Grunge",
+      "songs": ["Alive", "Jeremy", "Even Flow", "Black", "Better Man", "Daughter", "Yellow Ledbetter"]
+    },
+    {
+      "name": "Soundgarden",
+      "genre": "Grunge",
+      "songs": ["Black Hole Sun", "Spoonman", "Rusty Cage", "Fell on Black Days", "Outshined", "Jesus Christ Pose"]
+    },
+    {
+      "name": "Alice in Chains",
+      "genre": "Grunge",
+      "songs": ["Man in the Box", "Would?", "Rooster", "Down in a Hole", "Them Bones", "No Excuses"]
+    },
+    {
+      "name": "Stone Temple Pilots",
+      "genre": "Grunge",
+      "songs": ["Plush", "Interstate Love Song", "Big Empty", "Vasoline", "Sex Type Thing", "Creep"]
+    },
+    {
+      "name": "Ramones",
+      "genre": "Punk Rock",
+      "songs": ["Blitzkrieg Bop", "I Wanna Be Sedated", "Sheena Is a Punk Rocker", "Rockaway Beach", "Teenage Lobotomy", "Beat on the Brat"]
+    },
+    {
+      "name": "Sex Pistols",
+      "genre": "Punk Rock",
+      "songs": ["Anarchy in the U.K.", "God Save the Queen", "Pretty Vacant", "Holidays in the Sun", "EMI", "Bodies"]
+    },
+    {
+      "name": "The Clash",
+      "genre": "Punk Rock",
+      "songs": ["London Calling", "Should I Stay or Should I Go", "Rock the Casbah", "White Riot", "Train in Vain", "Complete Control"]
+    },
+    {
+      "name": "Green Day",
+      "genre": "Punk Rock",
+      "songs": ["Basket Case", "American Idiot", "Longview", "Holiday", "When I Come Around", "Good Riddance (Time of Your Life)"]
+    },
+    {
+      "name": "Radiohead",
+      "genre": "Alternative Rock",
+      "songs": ["Creep", "Karma Police", "Paranoid Android", "No Surprises", "Fake Plastic Trees", "Street Spirit (Fade Out)"]
+    },
+    {
+      "name": "Foo Fighters",
+      "genre": "Alternative Rock",
+      "songs": ["Everlong", "My Hero", "Learn to Fly", "The Pretender", "Best of You", "Times Like These"]
+    },
+    {
+      "name": "Red Hot Chili Peppers",
+      "genre": "Alternative Rock",
+      "songs": ["Under the Bridge", "Californication", "Can't Stop", "Scar Tissue", "Give It Away", "Otherside"]
+    },
+    {
+      "name": "R.E.M.",
+      "genre": "Alternative Rock",
+      "songs": ["Losing My Religion", "Man on the Moon", "Everybody Hurts", "The One I Love", "Shiny Happy People", "Stand"]
+    },
+    {
+      "name": "Smashing Pumpkins",
+      "genre": "Alternative Rock",
+      "songs": ["Tonight, Tonight", "1979", "Bullet with Butterfly Wings", "Today", "Cherub Rock", "Disarm"]
+    },
+    {
+      "name": "Linkin Park",
+      "genre": "Alternative Rock",
+      "songs": ["In the End", "Numb", "Crawling", "Faint", "Somewhere I Belong", "Breaking the Habit", "What I've Done", "New Divide"]
+    },
+    {
+      "name": "Pink Floyd",
+      "genre": "Progressive Rock",
+      "songs": ["Wish You Were Here", "Comfortably Numb", "Another Brick in the Wall", "Time", "Money", "Shine On You Crazy Diamond", "Hey You"]
+    },
+    {
+      "name": "Yes",
+      "genre": "Progressive Rock",
+      "songs": ["Roundabout", "Owner of a Lonely Heart", "Starship Trooper", "Close to the Edge", "I've Seen All Good People"]
+    },
+    {
+      "name": "Genesis",
+      "genre": "Progressive Rock",
+      "songs": ["Land of Confusion", "Invisible Touch", "Turn It On Again", "Follow You Follow Me", "Mama"]
+    },
+    {
+      "name": "King Crimson",
+      "genre": "Progressive Rock",
+      "songs": ["21st Century Schizoid Man", "Epitaph", "Starless", "Fracture", "Red"]
+    },
+    {
+      "name": "Rush",
+      "genre": "Progressive Rock",
+      "songs": ["Tom Sawyer", "Limelight", "YYZ", "Freewill", "Subdivisions", "Closer to the Heart"]
+    },
+    {
+      "name": "Dimmu Borgir",
+      "genre": "Black Metal",
+      "songs": ["Mourning Palace", "Puritania", "Progenies of the Great Apocalypse", "Vredesbyrd", "The Insight and the Catharsis", "Gateways"]
+    }
+  ]
+}

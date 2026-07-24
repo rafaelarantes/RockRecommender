@@ -1,0 +1,11 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: rockrecommender-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - rockrecommender-mongo-data:/data/db
+
+volumes:
+  rockrecommender-mongo-data:
