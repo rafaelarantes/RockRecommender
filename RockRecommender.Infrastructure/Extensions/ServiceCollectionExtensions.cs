@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RockRecommender.Application.Recommendations;
 using RockRecommender.Domain.Repositories;
+using RockRecommender.Infrastructure.Catalog;
 using RockRecommender.Infrastructure.MachineLearning;
 using RockRecommender.Infrastructure.Mongo;
 using RockRecommender.Infrastructure.Mongo.Repositories;
@@ -23,6 +24,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFeedbackRepository, FeedbackRepository>();
         services.AddScoped<IRecommendationLogRepository, RecommendationLogRepository>();
+        services.AddScoped<IBandRepository, BandRepository>();
 
         return services;
     }

@@ -80,7 +80,15 @@ cd RockRecommender.Api
 dotnet run
 ```
 
-By default it listens on `http://localhost:5110` (see `Properties/launchSettings.json`). The exact URL is also printed in the console on startup. Swagger is wired in and served at the root (`http://localhost:5110/`), so opening it in a browser is the fastest way to explore and try the three endpoints.
+By default it listens on `http://localhost:5110` (see `Properties/launchSettings.json`). The exact URL is also printed in the console on startup. Swagger is wired in and served at the root (`http://localhost:5110/`), so opening it in a browser is the fastest way to explore and try the four endpoints.
+
+### List the available bands
+
+```bash
+curl http://localhost:5110/bands
+```
+
+Returns the full list of band names in the catalog, e.g. `["Metallica", "Iron Maiden", ...]`, useful for building a signup screen that lets a new user pick their favorite bands.
 
 ### Create a user (cold start)
 
@@ -123,3 +131,7 @@ dotnet test RockRecommender.Tests
 ## Dataset
 
 The catalog (`RockRecommender.Infrastructure/Catalog/rock-catalog.json`) contains 43 well-known rock bands across 9 subgenres (classic rock, hard rock, heavy metal, thrash metal, grunge, punk rock, alternative rock, progressive rock, black metal), with real songs per band, totaling 280 songs. It is a plain data file, not code, so growing the catalog never means touching a line of C#. It is shared by both the Training app (as the seed dataset for synthetic interactions) and the Infrastructure project (to seed MongoDB's `songs` collection), so there is a single source of truth for the catalog.
+
+## See also
+
+[RockPlayerApi](https://github.com/rafaelarantes/RockPlayerApi) and [RockPlayerWeb](https://github.com/rafaelarantes/RockPlayerWeb) are a companion project that consumes this API and actually plays the recommended songs, with an 8-part blog series of its own starting at [Introducing RockPlayer](https://devfullstack.net/blog/introducing-rockplayer).

@@ -34,7 +34,7 @@ public class UserTests
 
         //Act
         var firstUser = User.Create(userId, ["Metallica"]).Value!;
-        var secondUser = User.Create(userId, ["Black Sabbath"]).Value!
+        var secondUser = User.Create(userId, ["Black Sabbath"]).Value!;
 
         //Assert
         Assert.Equal(firstUser, secondUser);

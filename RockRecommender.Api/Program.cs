@@ -1,4 +1,5 @@
 using RockRecommender.Api.Extensions;
+using RockRecommender.Application.Catalog;
 using RockRecommender.Application.Feedback;
 using RockRecommender.Application.Recommendations;
 using RockRecommender.Application.Users;
@@ -10,6 +11,7 @@ builder.Services.AddRockRecommenderInfrastructure(builder.Configuration);
 builder.Services.AddScoped<RecommendationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<FeedbackService>();
+builder.Services.AddScoped<BandService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

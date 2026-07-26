@@ -13,6 +13,17 @@ public sealed class RecommendationLogRepository(MongoContext context) : IRecomme
         return [.. documents.Select(entry => entry.SongId).Distinct()];
     }
 
+    public async Task<Guid?> GetLastShownSongIdAsync(Guid userId)
+    {
+        var lastEntry = await context.RecommendationLog
+            .Find(entry => entry.UserId == userId)
+            .SortByDescending(entry => entry.ShownAt)
+            .Limit(1)
+            .FirstOrDefaultAsync();
+
+        return lastEntry?.SongId;
+    }
+
     public async Task RegisterShownAsync(Guid userId, Guid songId)
     {
         await context.RecommendationLog.InsertOneAsync(new RecommendationLogDocument

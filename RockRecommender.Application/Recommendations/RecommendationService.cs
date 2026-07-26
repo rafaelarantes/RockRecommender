@@ -56,8 +56,10 @@ public sealed class RecommendationService(
             return Result<List<Song>>.Conflict("The song catalog is empty.");
 
         var shownSongIds = await recommendationLogRepository.GetShownSongIdsAsync(userId);
+        var lastShownSongId = await recommendationLogRepository.GetLastShownSongIdAsync(userId);
+        var lastShownBand = allSongs.FirstOrDefault(song => song.Id == lastShownSongId)?.Band;
 
-        var history = new RecommendationHistory(shownSongIds);
+        var history = new RecommendationHistory(shownSongIds, lastShownBand);
 
         return Result<List<Song>>.Success(history.SelectUnseenOrFallback(allSongs));
     }

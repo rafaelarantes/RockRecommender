@@ -10,11 +10,11 @@ public static class RockCatalog
 {
     private const string EmbeddedResourceName = "RockRecommender.Infrastructure.Catalog.rock-catalog.json";
 
-    private static readonly RockCatalogDocument Document = LoadDocument();
+    private static readonly RockCatalogDocument _document = LoadDocument();
 
-    public static IReadOnlyList<string> Genres => Document.Genres;
+    public static IReadOnlyList<string> Genres => _document.Genres;
 
-    public static IReadOnlyList<string> Bands { get; } = [.. Document.Bands.Select(band => band.Name)];
+    public static IReadOnlyList<string> Bands { get; } = [.. _document.Bands.Select(band => band.Name)];
 
     public static List<Song> GetSongs() => BuildSongs();
 
@@ -35,7 +35,7 @@ public static class RockCatalog
     {
         var songs = new List<Song>();
 
-        foreach (var band in Document.Bands)
+        foreach (var band in _document.Bands)
         {
             foreach (var title in band.Songs)
             {
