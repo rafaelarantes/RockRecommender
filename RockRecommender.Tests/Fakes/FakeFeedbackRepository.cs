@@ -10,6 +10,9 @@ public sealed class FakeFeedbackRepository : IFeedbackRepository
     public Task<List<Feedback>> GetByUserAsync(Guid userId) =>
         Task.FromResult(Items.Where(item => item.UserId == userId).ToList());
 
+    public Task<List<Feedback>> GetAllAsync() =>
+        Task.FromResult(Items.ToList());
+
     public Task AddAsync(Feedback feedback)
     {
         Items.Add(feedback);

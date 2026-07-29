@@ -13,6 +13,13 @@ public sealed class FeedbackRepository(MongoContext context) : IFeedbackReposito
         return [.. documents.Select(ToDomain)];
     }
 
+    public async Task<List<Feedback>> GetAllAsync()
+    {
+        var documents = await context.Feedback.Find(FilterDefinition<FeedbackDocument>.Empty).ToListAsync();
+        
+        return [.. documents.Select(ToDomain)];
+    }
+
     public async Task AddAsync(Feedback feedback)
     {
         await context.Feedback.InsertOneAsync(new FeedbackDocument

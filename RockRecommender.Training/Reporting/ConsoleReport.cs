@@ -1,7 +1,6 @@
 using RockRecommender.Domain.Entities;
 using RockRecommender.Infrastructure.Catalog;
 using RockRecommender.Training.Evaluation;
-using RockRecommender.Training.Synthetic;
 
 namespace RockRecommender.Training.Reporting;
 
@@ -19,21 +18,21 @@ public static class ConsoleReport
         }
     }
 
-    public static void PrintInteractionSummary(List<SyntheticInteraction> interactions)
+    public static void PrintInteractionSummary(List<Interaction> interactions, string source)
     {
         var likedCount = interactions.Count(interaction => interaction.Liked);
         var dislikedCount = interactions.Count - likedCount;
         var distinctUserCount = interactions.Select(interaction => interaction.UserId).Distinct().Count();
 
-        PrintSectionHeader("Synthetic interactions");
+        PrintSectionHeader($"Training interactions ({source})");
 
-        Console.WriteLine($"{interactions.Count} interactions from {distinctUserCount} synthetic users");
+        Console.WriteLine($"{interactions.Count} interactions from {distinctUserCount} users");
         Console.WriteLine($"  {likedCount} likes, {dislikedCount} dislikes");
     }
 
-    public static void PrintEvaluationResult(LeaveOneOutResult result, int k)
+    public static void PrintEvaluationResult(string label, LeaveOneOutResult result, int k)
     {
-        PrintSectionHeader($"Leave-one-out evaluation (K={k})");
+        PrintSectionHeader($"Leave-one-out evaluation, {label} (K={k})");
 
         Console.WriteLine($"Evaluated users: {result.EvaluatedUserCount}");
         Console.WriteLine($"  Precision@{k}:        {result.PrecisionAtK:P0}");
@@ -41,11 +40,13 @@ public static class ConsoleReport
         Console.WriteLine($"  NDCG@{k}:              {result.NdcgAtK:F2}");
     }
 
-    public static void PrintModelSaved(string modelPath)
+    public static void PrintPromotionDecision(bool promoted, string modelPath)
     {
-        PrintSectionHeader("Final model");
+        PrintSectionHeader("Promotion");
 
-        Console.WriteLine($"Saved trained model to {Path.GetFullPath(modelPath)}");
+        Console.WriteLine(promoted
+            ? $"New model promoted to {Path.GetFullPath(modelPath)}"
+            : "New model did not beat the active one, keeping the current model");
     }
 
     private static void PrintSectionHeader(string title)

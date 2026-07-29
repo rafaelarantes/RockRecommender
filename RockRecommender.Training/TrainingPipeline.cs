@@ -2,25 +2,39 @@ using Microsoft.Extensions.Options;
 using Microsoft.ML;
 using RockRecommender.Domain.Entities;
 using RockRecommender.Infrastructure.Catalog;
+using RockRecommender.Infrastructure.MachineLearning;
 using RockRecommender.Training.Evaluation;
 using RockRecommender.Training.Ml;
+using RockRecommender.Training.RealFeedback;
 using RockRecommender.Training.Reporting;
-using RockRecommender.Training.Synthetic;
 
 namespace RockRecommender.Training;
 
-public sealed class TrainingPipeline(IOptions<TrainingOptions> options, SyntheticInteractionGenerator interactionGenerator)
+public sealed class TrainingPipeline(IOptions<TrainingOptions> options, InteractionSourceSelector interactionSourceSelector)
 {
-    public void Run()
+    public async Task RunAsync()
     {
         var settings = options.Value;
         var mlContext = new MLContext(seed: 1);
 
         var songs = LoadCatalog();
-        var interactions = GenerateInteractions(songs, settings.SyntheticUserCount);
+        var trainingInteractions = await SelectInteractionsAsync(songs, settings.SyntheticUserCount);
 
-        EvaluateModel(mlContext, songs, interactions, settings.EvaluationK);
-        TrainAndSaveFinalModel(mlContext, interactions, settings.ModelPath);
+        var split = LeaveOneOutEvaluator.Split(trainingInteractions.Interactions);
+        var candidateResult = EvaluateCandidate(mlContext, split, songs, settings.EvaluationK);
+        var activeResult = EvaluateActiveModel(mlContext, split, songs, settings.EvaluationK, settings.ModelPath);
+
+        ConsoleReport.PrintEvaluationResult("candidate", candidateResult, settings.EvaluationK);
+
+        if (activeResult is not null)
+            ConsoleReport.PrintEvaluationResult("active", activeResult, settings.EvaluationK);
+
+        var promoted = activeResult is null || candidateResult.IsBetterThan(activeResult);
+
+        if (promoted)
+            TrainAndPromoteFinalModel(mlContext, trainingInteractions.Interactions, settings.CandidateModelPath, settings.ModelPath);
+
+        ConsoleReport.PrintPromotionDecision(promoted, settings.ModelPath);
     }
 
     private static List<Song> LoadCatalog()
@@ -31,26 +45,35 @@ public sealed class TrainingPipeline(IOptions<TrainingOptions> options, Syntheti
         return songs;
     }
 
-    private List<SyntheticInteraction> GenerateInteractions(List<Song> songs, int syntheticUserCount)
+    private async Task<TrainingInteractions> SelectInteractionsAsync(List<Song> songs, int syntheticUserCount)
     {
-        var interactions = interactionGenerator.Generate(songs, syntheticUserCount);
-        ConsoleReport.PrintInteractionSummary(interactions);
+        var trainingInteractions = await interactionSourceSelector.SelectAsync(songs, syntheticUserCount);
+        ConsoleReport.PrintInteractionSummary(trainingInteractions.Interactions, trainingInteractions.IsReal ? "real feedback" : "synthetic");
 
-        return interactions;
+        return trainingInteractions;
     }
 
-    private static void EvaluateModel(MLContext mlContext, List<Song> songs, List<SyntheticInteraction> interactions, int k)
+    private static LeaveOneOutResult EvaluateCandidate(MLContext mlContext, HoldOutSplit split, List<Song> songs, int k)
     {
-        var result = LeaveOneOutEvaluator.Evaluate(mlContext, interactions, songs, k);
-        ConsoleReport.PrintEvaluationResult(result, k);
+        var trainedModel = RecommenderModelTrainer.Train(mlContext, split.TrainingInteractions.Select(SongRatingSampleMapper.ToSample));
+        using var predictionEngine = mlContext.Model.CreatePredictionEngine<SongRatingSample, SongRatingPrediction>(trainedModel.Model);
+
+        return LeaveOneOutEvaluator.Evaluate(split, songs, predictionEngine, k);
     }
 
-    private static void TrainAndSaveFinalModel(MLContext mlContext, List<SyntheticInteraction> interactions, string modelPath)
+    private static LeaveOneOutResult? EvaluateActiveModel(MLContext mlContext, HoldOutSplit split, List<Song> songs, int k, string activeModelPath)
+    {
+        using var predictionEngine = TrainedModelLoader.TryLoad(mlContext, activeModelPath);
+
+        return predictionEngine is null ? null : LeaveOneOutEvaluator.Evaluate(split, songs, predictionEngine, k);
+    }
+
+    private static void TrainAndPromoteFinalModel(MLContext mlContext, List<Interaction> interactions, string candidateModelPath, string activeModelPath)
     {
         var samples = interactions.Select(SongRatingSampleMapper.ToSample);
         var trainedModel = RecommenderModelTrainer.Train(mlContext, samples);
 
-        mlContext.Model.Save(trainedModel.Model, trainedModel.InputSchema, modelPath);
-        ConsoleReport.PrintModelSaved(modelPath);
+        mlContext.Model.Save(trainedModel.Model, trainedModel.InputSchema, candidateModelPath);
+        File.Copy(candidateModelPath, activeModelPath, overwrite: true);
     }
 }

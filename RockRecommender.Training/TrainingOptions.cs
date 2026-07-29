@@ -5,6 +5,8 @@ public sealed class TrainingOptions
     public const string SectionName = "Training";
 
     public string ModelPath { get; set; } = "";
+    public string CandidateModelPath { get; set; } = "";
+    public TimeSpan RetrainInterval { get; set; }
     public int SyntheticUserCount { get; set; }
     public int EvaluationK { get; set; }
 }

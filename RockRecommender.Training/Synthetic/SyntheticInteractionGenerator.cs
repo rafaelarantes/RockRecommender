@@ -8,11 +8,11 @@ namespace RockRecommender.Training.Synthetic;
 
 public sealed class SyntheticInteractionGenerator(IOptions<SyntheticInteractionOptions> options)
 {
-    public List<SyntheticInteraction> Generate(List<Song> songs, int userCount, int seed = 42)
+    public List<Interaction> Generate(List<Song> songs, int userCount, int seed = 42)
     {
         var settings = options.Value;
         var random = new Random(seed);
-        var interactions = new List<SyntheticInteraction>();
+        var interactions = new List<Interaction>();
 
         for (var userIndex = 0; userIndex < userCount; userIndex++)
         {
@@ -43,7 +43,7 @@ public sealed class SyntheticInteractionGenerator(IOptions<SyntheticInteractionO
             .ToHashSet();
     }
 
-    private static IEnumerable<SyntheticInteraction> GenerateInteractionsForUser(
+    private static IEnumerable<Interaction> GenerateInteractionsForUser(
         Guid userId,
         List<Song> songs,
         HashSet<string> preferredGenres,
@@ -61,7 +61,7 @@ public sealed class SyntheticInteractionGenerator(IOptions<SyntheticInteractionO
         }
     }
 
-    private static SyntheticInteraction? TryCreateInteraction(
+    private static Interaction? TryCreateInteraction(
         Guid userId,
         Song song,
         HashSet<string> preferredGenres,
@@ -81,6 +81,6 @@ public sealed class SyntheticInteractionGenerator(IOptions<SyntheticInteractionO
         var likeProbability = isPreferredGenre ? settings.PreferredGenreLikeProbability : settings.OtherGenreLikeProbability;
         var liked = random.NextDouble() < likeProbability;
 
-        return new SyntheticInteraction(userId, song.Id, liked);
+        return new Interaction(userId, song.Id, liked);
     }
 }

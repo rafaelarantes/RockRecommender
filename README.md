@@ -2,13 +2,10 @@
 
 RockRecommender is a small, from-scratch music recommendation system for rock songs, built entirely in .NET (no Python anywhere). It recommends the next song to a listener the same way big streaming services do: content-based suggestions for brand-new users (based on the bands they say they like at signup, solving the cold-start problem), and a collaborative-filtering model, trained with ML.NET, once the user has given at least one like or dislike.
 
-It is the companion code for a 5-part blog series that teaches how to evaluate a recommendation model, step by step, for readers who have never trained one before:
+It is the companion code for two blog series:
 
-1. [Recommendation systems: how Spotify knows what you want to hear](https://devfullstack.net/blog/how-recommendation-systems-work). Content-based vs. collaborative recommendation, and the cold-start problem.
-2. [How to evaluate a recommendation model](https://devfullstack.net/blog/how-to-evaluate-a-recommendation-model). Precision@K, Recall@K and NDCG, explained with numeric examples.
-3. [Building the dataset and training the recommender with ML.NET](https://devfullstack.net/blog/training-a-rock-recommender-with-mlnet). The rock catalog and training a `MatrixFactorizationTrainer` model.
-4. [Evaluating the model in practice](https://devfullstack.net/blog/evaluating-the-rock-recommender). Applying the metrics from article 2 with a leave-one-out evaluation.
-5. [Building the rock recommender API](https://devfullstack.net/blog/building-the-rock-recommender-api). Wiring the trained model into a real ASP.NET Core API backed by MongoDB.
+- [Building a rock recommender with ML.NET](https://devfullstack.net/blog/series-rockrecommender), which teaches how to evaluate a recommendation model step by step, for readers who have never trained one before.
+- [Closing the feedback loop in RockRecommender](https://devfullstack.net/blog/series-rockrecommender-feedback-loop), which finishes the training pipeline: deciding automatically between synthetic and real feedback, comparing a candidate model against production before promoting it, retraining on a schedule, and reloading the model live.
 
 ## Solution structure
 
@@ -22,8 +19,10 @@ RockRecommender.Infrastructure  MongoDB repositories, the rock catalog (embedded
                                  model loading/scoring
 RockRecommender.Api             ASP.NET Core Web API (controllers, Swagger, one shared exception-to-HTTP
                                  mapping base controller)
-RockRecommender.Training        console app: load the catalog, generate synthetic interactions, train,
-                                 evaluate, save the model
+RockRecommender.Training        long-running host: on a schedule, reads real feedback from MongoDB (falling
+                                 back to synthetic interactions while there isn't enough of it yet), trains
+                                 a candidate model, compares it against the model currently in production,
+                                 and only promotes it if it scores better
 RockRecommender.Tests           xUnit tests for the domain, the value objects and RecommendationService
 ```
 
@@ -36,30 +35,24 @@ A controller only ever talks to a service, never straight to a repository or an 
 
 ## 1. Train the model and see the evaluation metrics
 
-The training console app is fully standalone: the song catalog and the synthetic user interactions are generated in the process itself, so it does **not** need MongoDB to run.
+The training host reads real feedback from MongoDB, so it needs MongoDB running (see step 2 below) even before the API is started. On every run it counts how many real interactions exist in the `feedback` collection and compares that against how many synthetic interactions it would generate: if there is more real feedback than that, it trains on the real data, otherwise it falls back to the synthetic interactions generated in the process itself.
 
 ```bash
 cd RockRecommender.Training
 dotnet run
 ```
 
-This prints the catalog summary, the generated synthetic interactions, the leave-one-out Precision@5 / Recall@5 / NDCG@5 metrics, and finally saves the trained model to `RockRecommender.Training/rock-recommender.zip`.
+This is a long-running host, not a one-shot script: on startup, and then on every tick of the configured `RetrainInterval`, it prints the catalog summary, the interaction summary (and which source it came from), the leave-one-out Precision@5 / Recall@5 / NDCG@5 metrics for the newly trained candidate model, the same metrics for the model currently in production, and whether the candidate was promoted. A candidate is only promoted when its total score beats the active model's (or when there is no active model yet), so a retrain can never make production worse.
 
-Every number that shapes the training run (how many synthetic users, the evaluation `K`, the model path, the like/dislike probabilities used to generate synthetic taste) is configurable via `RockRecommender.Training/appsettings.json`, or overridden on the fly, for example:
+Every number that shapes a training run (how many synthetic users, the evaluation `K`, the retrain interval, the model paths, the like/dislike probabilities used to generate synthetic taste) is configurable via `RockRecommender.Training/appsettings.json`, or overridden on the fly, for example:
 
 ```bash
 dotnet run -- --Training:SyntheticUserCount=200
 ```
 
-### Making the model available to the API
+### How the model reaches the API
 
-The Api project loads the model from the path configured under `"Model": { "Path": "..." }` in `RockRecommender.Api/appsettings.json` (relative to the working directory the API is run from). The simplest setup, and the one used in this repo, is to copy the freshly trained file next to the Api project:
-
-```bash
-cp RockRecommender.Training/rock-recommender.zip RockRecommender.Api/rock-recommender.zip
-```
-
-A copy of `rock-recommender.zip` (trained on the seed dataset) is already committed next to the Api project so the API works out of the box. Retrain and re-copy whenever you change the dataset or the training settings. If the file is missing, the API still starts and serves cold-start recommendations normally, it only fails the `next-song` request for a user who already has feedback, with a clear 503 error asking you to train the model first.
+Both `RockRecommender.Training/appsettings.json` and `RockRecommender.Api/appsettings.json` point their `Model`/`Training` path at the same file, `rock-recommender.zip` at the repo root, so there is nothing to copy by hand. When the training host promotes a new candidate, it overwrites that shared file, and the API notices the change on its own: it periodically checks the file's last-modified time (`Model:ReloadCheckInterval`) and reloads the model in memory without needing a restart. A copy trained on the seed dataset is already committed at the repo root so the API works out of the box. If the file is ever missing, the API still starts and serves cold-start recommendations normally, it only fails the `next-song` request for a user who already has feedback, with a clear 503 error asking you to train the model first.
 
 ## 2. Start MongoDB
 
@@ -69,7 +62,7 @@ A single-service `docker-compose.yml` is included at the repo root:
 docker compose up -d
 ```
 
-This starts MongoDB on the default port `27017` with a named volume for persistence. The connection string and database name are configured in `RockRecommender.Api/appsettings.json` under `"Mongo"` and default to `mongodb://localhost:27017` / `rockrecommender`.
+This starts MongoDB on the default port `27017` with a named volume for persistence. The connection string and database name are configured under `"Mongo"` in both `RockRecommender.Api/appsettings.json` and `RockRecommender.Training/appsettings.json`, and default to `mongodb://localhost:27017` / `rockrecommender` in both.
 
 The API seeds the `songs` collection from the same catalog used by the Training project automatically on startup, the first time it connects to an empty database.
 
@@ -134,4 +127,4 @@ The catalog (`RockRecommender.Infrastructure/Catalog/rock-catalog.json`) contain
 
 ## See also
 
-[RockPlayerApi](https://github.com/rafaelarantes/RockPlayerApi) and [RockPlayerWeb](https://github.com/rafaelarantes/RockPlayerWeb) are a companion project that consumes this API and actually plays the recommended songs, with an 8-part blog series of its own starting at [Introducing RockPlayer](https://devfullstack.net/blog/introducing-rockplayer).
+[RockPlayerApi](https://github.com/rafaelarantes/RockPlayerApi) and [RockPlayerWeb](https://github.com/rafaelarantes/RockPlayerWeb) are a companion project that consumes this API and actually plays the recommended songs, with a blog series of its own: [RockPlayer: actually playing what RockRecommender recommends](https://devfullstack.net/blog/series-rockplayer).

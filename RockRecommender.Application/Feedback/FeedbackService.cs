@@ -12,4 +12,14 @@ public sealed class FeedbackService(IFeedbackRepository feedbackRepository)
 
         await feedbackRepository.AddAsync(feedback);
     }
+
+    public async Task<List<FeedbackResponse>> GetAllAsync()
+    {
+        var feedback = await feedbackRepository.GetAllAsync();
+
+        return [.. feedback.Select(ToResponse)];
+    }
+
+    private static FeedbackResponse ToResponse(DomainFeedback feedback) =>
+        new(feedback.UserId, feedback.SongId, feedback.Liked);
 }

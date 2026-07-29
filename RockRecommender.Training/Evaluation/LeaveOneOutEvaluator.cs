@@ -3,31 +3,18 @@ using RockRecommender.Domain.Entities;
 using RockRecommender.Domain.Evaluation;
 using RockRecommender.Infrastructure.MachineLearning;
 using RockRecommender.Training.Ml;
-using RockRecommender.Training.Synthetic;
 
 namespace RockRecommender.Training.Evaluation;
 
 public static class LeaveOneOutEvaluator
 {
-    public static LeaveOneOutResult Evaluate(MLContext mlContext, List<SyntheticInteraction> interactions, List<Song> songs, int k, int seed = 123)
+    public static HoldOutSplit Split(List<Interaction> interactions, int seed = 123)
     {
         var random = new Random(seed);
-        var split = SplitHoldOutSet(interactions, random);
-
-        var trainedModel = RecommenderModelTrainer.Train(mlContext, split.TrainingInteractions.Select(SongRatingSampleMapper.ToSample));
-        using var predictionEngine = mlContext.Model.CreatePredictionEngine<SongRatingSample, SongRatingPrediction>(trainedModel.Model);
-
-        var seenSongIdsByUser = GroupSeenSongIdsByUser(split.TrainingInteractions);
-
-        return AggregateMetrics(split.HeldOutSongIdByUser, seenSongIdsByUser, songs, predictionEngine, k);
-    }
-
-    private static HoldOutSplit SplitHoldOutSet(List<SyntheticInteraction> interactions, Random random)
-    {
         var interactionsByUser = interactions.GroupBy(interaction => interaction.UserId).ToDictionary(g => g.Key, g => g.ToList());
 
         var heldOutSongIdByUser = new Dictionary<Guid, Guid>();
-        var trainingInteractions = new List<SyntheticInteraction>();
+        var trainingInteractions = new List<Interaction>();
 
         foreach (var (userId, userInteractions) in interactionsByUser)
         {
@@ -48,7 +35,14 @@ public static class LeaveOneOutEvaluator
         return new HoldOutSplit(heldOutSongIdByUser, trainingInteractions);
     }
 
-    private static Dictionary<Guid, HashSet<Guid>> GroupSeenSongIdsByUser(List<SyntheticInteraction> trainingInteractions) =>
+    public static LeaveOneOutResult Evaluate(HoldOutSplit split, List<Song> songs, PredictionEngine<SongRatingSample, SongRatingPrediction> predictionEngine, int k)
+    {
+        var seenSongIdsByUser = GroupSeenSongIdsByUser(split.TrainingInteractions);
+
+        return AggregateMetrics(split.HeldOutSongIdByUser, seenSongIdsByUser, songs, predictionEngine, k);
+    }
+
+    private static Dictionary<Guid, HashSet<Guid>> GroupSeenSongIdsByUser(List<Interaction> trainingInteractions) =>
         trainingInteractions
             .GroupBy(interaction => interaction.UserId)
             .ToDictionary(g => g.Key, g => g.Select(interaction => interaction.SongId).ToHashSet());
@@ -100,8 +94,17 @@ public static class LeaveOneOutEvaluator
         if (!candidateSongs.Any(song => song.Id == heldOutSongId))
             return null;
 
-        return [.. candidateSongs
+        var scoredSongs = candidateSongs
             .Select(song => new ScoredSong(song.Id, predictionEngine.Predict(new SongRatingSample { UserId = userId.ToString(), SongId = song.Id.ToString() }).Score))
+            .ToList();
+
+        var heldOutScore = scoredSongs.Single(scoredSong => scoredSong.SongId == heldOutSongId).Score;
+
+        if (float.IsNaN(heldOutScore))
+            return null;
+
+        return [.. scoredSongs
+            .Where(scoredSong => !float.IsNaN(scoredSong.Score))
             .OrderByDescending(scoredSong => scoredSong.Score)
             .Select(scoredSong => scoredSong.SongId)];
     }
